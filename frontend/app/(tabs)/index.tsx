@@ -19,14 +19,16 @@ import { Feather } from '@expo/vector-icons';
 import { useTasks } from '@/src/lib/store';
 import { Task } from '@/src/lib/types';
 import { ListKey, colors, font, radius, spacing, listAccent, listLabel } from '@/src/lib/theme';
-import { EmptyState, SectionHeader, TaskRow, formatDisplay, isSameDay } from '@/src/components/TaskUi';
+import { EmptyState, SectionHeader, SwipeableTaskRow } from '@/src/components/TaskUi';
 import { DateTimeField } from '@/src/components/DateTimeField';
 import { ensurePermission, getPermissionStatus } from '@/src/lib/notifications';
+import { useUndo } from '@/src/components/UndoBar';
 
 export default function TodayScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { ready, tasks, addTask, toggleDone, demoMode, notifPermission, setNotifPermission } = useTasks();
+  const { showUndo } = useUndo();
+  const { ready, tasks, addTask, toggleDone, deleteTask, restoreTask, snoozes, demoMode, notifPermission, setNotifPermission } = useTasks();
 
   const [title, setTitle] = useState('');
   const titleInputRef = useRef<any>(null);
@@ -34,7 +36,6 @@ export default function TodayScreen() {
   const [quickList, setQuickList] = useState<ListKey>('personal');
   const [showListPicker, setShowListPicker] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
-  const [undo, setUndo] = useState<{ id: string; timer: any } | null>(null);
 
   // Permission check on mount
   useEffect(() => {
@@ -101,17 +102,13 @@ export default function TodayScreen() {
 
   const handleToggle = async (id: string) => {
     await toggleDone(id);
-    // Simple undo affordance: display a bar for 4s
-    if (undo?.timer) clearTimeout(undo.timer);
-    const timer = setTimeout(() => setUndo(null), 4000);
-    setUndo({ id, timer });
+    showUndo('Task marked done', () => toggleDone(id));
   };
 
-  const undoAction = async () => {
-    if (!undo) return;
-    if (undo.timer) clearTimeout(undo.timer);
-    await toggleDone(undo.id);
-    setUndo(null);
+  const handleDelete = async (id: string) => {
+    const snapshot = tasks.find((t) => t.id === id);
+    await deleteTask(id);
+    if (snapshot) showUndo('Task deleted', () => restoreTask(snapshot));
   };
 
   const openSettings = () => {
@@ -185,7 +182,8 @@ export default function TodayScreen() {
             <View style={{ flex: 1 }}>
               <DateTimeField
                 testID="quick-add-datetime"
-                label=""
+                label="Deadline"
+                emptyText="No deadline"
                 value={quickDate}
                 onChange={setQuickDate}
               />
@@ -245,11 +243,13 @@ export default function TodayScreen() {
             <>
               <SectionHeader label="Overdue" accent={colors.overdueAccent} />
               {overdue.map((t) => (
-                <TaskRow
+                <SwipeableTaskRow
                   key={t.id}
                   task={t}
                   overdue
+                  snoozed={!!snoozes[t.id]}
                   onToggle={handleToggle}
+                  onDelete={handleDelete}
                   onPress={(id) => router.push(`/task/${id}`)}
                 />
               ))}
@@ -260,26 +260,18 @@ export default function TodayScreen() {
             <>
               <SectionHeader label="Today" />
               {todaysList.map((t) => (
-                <TaskRow
+                <SwipeableTaskRow
                   key={t.id}
                   task={t}
+                  snoozed={!!snoozes[t.id]}
                   onToggle={handleToggle}
+                  onDelete={handleDelete}
                   onPress={(id) => router.push(`/task/${id}`)}
                 />
               ))}
             </>
           ) : null}
         </ScrollView>
-
-        {/* Undo bar */}
-        {undo ? (
-          <View style={[styles.undoBar, { bottom: insets.bottom + 76 }]} testID="undo-bar">
-            <Text style={styles.undoText}>Task marked done</Text>
-            <Pressable onPress={undoAction} testID="undo-btn">
-              <Text style={styles.undoAction}>Undo</Text>
-            </Pressable>
-          </View>
-        ) : null}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -372,17 +364,4 @@ const styles = StyleSheet.create({
   },
   listMenuText: { fontSize: font.base, color: colors.onSurface },
   warn: { fontSize: font.sm, color: colors.warning },
-  undoBar: {
-    position: 'absolute',
-    left: spacing.lg,
-    right: spacing.lg,
-    backgroundColor: colors.onSurface,
-    padding: spacing.md,
-    borderRadius: radius.md,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  undoText: { color: colors.onBrandPrimary, fontSize: font.base },
-  undoAction: { color: colors.info, fontSize: font.base, fontWeight: '600' },
 });

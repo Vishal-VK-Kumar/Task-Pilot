@@ -1,7 +1,8 @@
 // Shared UI helpers
-import React from 'react';
+import React, { useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { colors, listAccent, listLabel, radius, spacing, font } from '@/src/lib/theme';
 import { Task } from '@/src/lib/types';
 
@@ -23,11 +24,13 @@ export function TaskRow({
   onToggle,
   onPress,
   overdue,
+  snoozed,
 }: {
   task: Task;
   onToggle: (id: string) => void;
   onPress: (id: string) => void;
   overdue?: boolean;
+  snoozed?: boolean;
 }) {
   const timeStr = task.dueAt ? formatTime(new Date(task.dueAt)) : '';
   return (
@@ -71,16 +74,78 @@ export function TaskRow({
               </Text>
             </>
           ) : null}
-          {task.reminderAt && !task.done ? (
+          {task.reminderAt && !task.done && !snoozed ? (
             <>
               <Text style={styles.dotSep}>·</Text>
               <Feather name="bell" size={11} color={colors.onSurfaceSecondary} />
             </>
           ) : null}
+          {snoozed && !task.done ? (
+            <View style={styles.snoozeBadge} testID={`task-snoozed-${task.id}`}>
+              <Feather name="clock" size={10} color={colors.info} />
+              <Text style={styles.snoozeText}>Snoozed</Text>
+            </View>
+          ) : null}
         </View>
       </View>
       <Feather name="chevron-right" size={18} color={colors.onSurfaceTertiary} />
     </Pressable>
+  );
+}
+
+// Swipe right -> complete (same code path as tapping the circle).
+// Swipe left -> delete. Parent supplies onComplete / onDelete.
+export function SwipeableTaskRow({
+  task,
+  onToggle,
+  onPress,
+  onDelete,
+  overdue,
+  snoozed,
+}: {
+  task: Task;
+  onToggle: (id: string) => void;
+  onPress: (id: string) => void;
+  onDelete: (id: string) => void;
+  overdue?: boolean;
+  snoozed?: boolean;
+}) {
+  const ref = useRef<any>(null);
+
+  const renderLeft = () => (
+    <View style={[styles.swipeAction, styles.swipeComplete]} testID={`swipe-complete-${task.id}`}>
+      <Feather name="check" size={20} color="#FFFFFF" />
+      <Text style={styles.swipeText}>Done</Text>
+    </View>
+  );
+  const renderRight = () => (
+    <View style={[styles.swipeAction, styles.swipeDelete]} testID={`swipe-delete-${task.id}`}>
+      <Feather name="trash-2" size={20} color="#FFFFFF" />
+      <Text style={styles.swipeText}>Delete</Text>
+    </View>
+  );
+
+  return (
+    <ReanimatedSwipeable
+      ref={ref}
+      friction={2}
+      leftThreshold={40}
+      rightThreshold={40}
+      renderLeftActions={task.done ? undefined : renderLeft}
+      renderRightActions={renderRight}
+      onSwipeableOpen={(direction: 'left' | 'right') => {
+        // 'left' = user swiped right (left actions revealed) -> complete.
+        // 'right' = user swiped left (right actions revealed) -> delete.
+        ref.current?.close?.();
+        if (direction === 'left') {
+          if (!task.done) onToggle(task.id);
+        } else {
+          onDelete(task.id);
+        }
+      }}
+    >
+      <TaskRow task={task} onToggle={onToggle} onPress={onPress} overdue={overdue} snoozed={snoozed} />
+    </ReanimatedSwipeable>
   );
 }
 
@@ -159,6 +224,26 @@ const styles = StyleSheet.create({
   rowMeta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   rowMetaText: { fontSize: font.sm, color: colors.onSurfaceSecondary },
   dotSep: { fontSize: font.sm, color: colors.onSurfaceTertiary, marginHorizontal: 2 },
+  snoozeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: '#EAF3FF',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: radius.sm,
+    marginLeft: 2,
+  },
+  snoozeText: { fontSize: 10, color: colors.info, fontWeight: '600' },
+  swipeAction: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 88,
+    gap: 2,
+  },
+  swipeComplete: { backgroundColor: colors.success },
+  swipeDelete: { backgroundColor: colors.error },
+  swipeText: { color: '#FFFFFF', fontSize: font.sm, fontWeight: '600' },
   sectionHeader: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,

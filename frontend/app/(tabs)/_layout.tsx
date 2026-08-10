@@ -1,8 +1,18 @@
 import { Tabs } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/src/lib/theme';
 
+const BASE_TAB_HEIGHT = 56;
+
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+  // Add the system navigation-bar inset as EXTRA bottom padding and grow the
+  // container height by the same amount, so the icons keep their size and the
+  // bar never sits under the Android navigation bar (works for both gesture
+  // and three-button navigation, which report different insets).
+  const bottomInset = insets.bottom;
+
   return (
     <Tabs
       screenOptions={{
@@ -13,9 +23,9 @@ export default function TabsLayout() {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: 62,
+          height: BASE_TAB_HEIGHT + bottomInset,
           paddingTop: 6,
-          paddingBottom: 8,
+          paddingBottom: bottomInset + 8,
         },
         tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
       }}

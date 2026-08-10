@@ -5,13 +5,25 @@ import { useRouter } from 'expo-router';
 
 import { useTasks } from '@/src/lib/store';
 import { colors, font, spacing } from '@/src/lib/theme';
-import { EmptyState, SectionHeader, TaskRow, formatDayHeader } from '@/src/components/TaskUi';
+import { EmptyState, SectionHeader, SwipeableTaskRow, formatDayHeader } from '@/src/components/TaskUi';
 import { Task } from '@/src/lib/types';
+import { useUndo } from '@/src/components/UndoBar';
 
 export default function UpcomingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { tasks, toggleDone, demoMode } = useTasks();
+  const { showUndo } = useUndo();
+  const { tasks, toggleDone, deleteTask, restoreTask, snoozes, demoMode } = useTasks();
+
+  const handleToggle = async (id: string) => {
+    await toggleDone(id);
+    showUndo('Task marked done', () => toggleDone(id));
+  };
+  const handleDelete = async (id: string) => {
+    const snapshot = tasks.find((t) => t.id === id);
+    await deleteTask(id);
+    if (snapshot) showUndo('Task deleted', () => restoreTask(snapshot));
+  };
 
   const groups = useMemo(() => {
     const now = new Date();
@@ -52,10 +64,12 @@ export default function UpcomingScreen() {
           <View key={g.date.toISOString()}>
             <SectionHeader label={formatDayHeader(g.date)} />
             {g.items.map((t) => (
-              <TaskRow
+              <SwipeableTaskRow
                 key={t.id}
                 task={t}
-                onToggle={toggleDone}
+                snoozed={!!snoozes[t.id]}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
                 onPress={(id) => router.push(`/task/${id}`)}
               />
             ))}
@@ -65,10 +79,12 @@ export default function UpcomingScreen() {
           <>
             <SectionHeader label="Someday" />
             {groups.someday.map((t) => (
-              <TaskRow
+              <SwipeableTaskRow
                 key={t.id}
                 task={t}
-                onToggle={toggleDone}
+                snoozed={!!snoozes[t.id]}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
                 onPress={(id) => router.push(`/task/${id}`)}
               />
             ))}

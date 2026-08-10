@@ -13,6 +13,7 @@ type Props = {
   label: string;
   testID?: string;
   allowClear?: boolean;
+  emptyText?: string;
 };
 
 function toLocalInputValue(d: Date): string {
@@ -20,7 +21,7 @@ function toLocalInputValue(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function DateTimeField({ value, onChange, label, testID, allowClear = true }: Props) {
+export function DateTimeField({ value, onChange, label, testID, allowClear = true, emptyText = 'None' }: Props) {
   const [showDate, setShowDate] = React.useState(false);
   const [showTime, setShowTime] = React.useState(false);
   const [tempDate, setTempDate] = React.useState<Date | null>(value);
@@ -29,12 +30,12 @@ export function DateTimeField({ value, onChange, label, testID, allowClear = tru
     setTempDate(value);
   }, [value]);
 
-  const display = value ? formatDisplay(value) : 'None';
+  const display = value ? formatDisplay(value) : emptyText;
 
   if (Platform.OS === 'web') {
     return (
       <View style={styles.rowWrap}>
-        <Text style={styles.label}>{label}</Text>
+        {label ? <Text style={styles.label}>{label}</Text> : null}
         <View style={styles.webInputWrap}>
           {/* @ts-ignore  react-native-web supports raw HTML tags via createElement fallback */}
           <input
@@ -69,7 +70,7 @@ export function DateTimeField({ value, onChange, label, testID, allowClear = tru
 
   return (
     <View style={styles.rowWrap}>
-      <Text style={styles.label}>{label}</Text>
+      {label ? <Text style={styles.label}>{label}</Text> : null}
       <View style={{ flexDirection: 'row', gap: spacing.sm, alignItems: 'center', flexWrap: 'wrap' }}>
         <Pressable
           testID={testID}
@@ -80,7 +81,7 @@ export function DateTimeField({ value, onChange, label, testID, allowClear = tru
           }}
           style={styles.pickerBtn}
         >
-          <Text style={styles.pickerBtnText}>{display}</Text>
+          <Text style={[styles.pickerBtnText, !value && styles.pickerBtnPlaceholder]}>{display}</Text>
         </Pressable>
         {allowClear && value ? (
           <Pressable onPress={() => onChange(null)} style={styles.clearBtn} testID={`${testID}-clear`}>
@@ -129,13 +130,12 @@ export function DateTimeField({ value, onChange, label, testID, allowClear = tru
 }
 
 export function formatDisplay(d: Date): string {
-  const today = new Date();
-  const isToday =
-    d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate();
+  // e.g. "Tue 12 Aug, 5:00 PM"
+  const weekday = d.toLocaleDateString(undefined, { weekday: 'short' });
+  const day = d.getDate();
+  const month = d.toLocaleDateString(undefined, { month: 'short' });
   const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-  if (isToday) return `Today, ${time}`;
-  const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-  return `${dateStr}, ${time}`;
+  return `${weekday} ${day} ${month}, ${time}`;
 }
 
 const styles = StyleSheet.create({
@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   pickerBtnText: { fontSize: font.lg, color: colors.onSurface },
+  pickerBtnPlaceholder: { color: colors.onSurfaceTertiary },
   clearBtn: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm + 2 },
   clearText: { fontSize: font.base, color: colors.info },
 });

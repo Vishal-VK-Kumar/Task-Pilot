@@ -15,11 +15,11 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 
 import { useTasks } from '@/src/lib/store';
-import { colors, font, listAccent, listLabel, radius, spacing } from '@/src/lib/theme';
+import { colors, font, listAccent, listLabel, radius, spacing, ListKey } from '@/src/lib/theme';
 import { STAGE_LABEL, STAGES, Stage, Task } from '@/src/lib/types';
 import { DateTimeField } from '@/src/components/DateTimeField';
-import { ListKey } from '@/src/lib/theme';
 import { isWeb } from '@/src/lib/notifications';
+import { useUndo } from '@/src/components/UndoBar';
 
 type ReminderPreset = 'none' | 'at_due' | '1h' | '1d' | 'custom';
 
@@ -48,7 +48,8 @@ function computeReminderFromPreset(p: ReminderPreset, dueAt: Date | null, existi
 export default function TaskDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { tasks, updateTask, deleteTask, toggleDone } = useTasks();
+  const { tasks, updateTask, deleteTask, restoreTask, toggleDone } = useTasks();
+  const { showUndo } = useUndo();
   const task = useMemo(() => tasks.find((t) => t.id === id) || null, [tasks, id]);
 
   const [title, setTitle] = useState('');
@@ -116,8 +117,10 @@ export default function TaskDetail() {
   };
 
   const doDelete = async () => {
+    const snapshot = task;
     await deleteTask(task.id);
     router.back();
+    if (snapshot) showUndo('Task deleted', () => restoreTask(snapshot));
   };
 
   return (

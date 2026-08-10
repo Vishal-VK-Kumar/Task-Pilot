@@ -1,0 +1,27 @@
+{
+  "summary": "Frontend-only regression on TaskPilot Today+History. All 9 requested checks pass. Fix1 quick-add row has 3 controls (deadline/list/submit) on one row (y=164-165), heights 44-46px (datetime is 46 due to border-box; visually centre-aligned), inline label reads 'Deadline: No deadline' initially and updates to 'Deadline: Mon 10 Aug, 2:40 PM' after setting a date; submission creates task. Fix2 header has open-history-btn adjacent to open-settings-btn on Today, bottom tabs remain exactly 3 (tab-today, tab-upcoming, tab-jobs). History screen shows 'History' header, history-summary computes correctly ('2 completed · 100% on time', sub '1 with a deadline'), on-time task rendered in history-section-today with history-status-<id>='On time' badge, no-deadline task appears without any history-status element and is excluded from the percentage denominator. history-undo-<id> removes the row and updates summary to '1 completed · no deadlines to measure'; tapping history-row-<id> navigates to detail-title. Completed tasks persist (no delete) across navigation. No React Native red screen, no deprecated packages spotted in code paths reviewed (expo-notifications used correctly; no expo-av/expo-barcode-scanner/expo-background-fetch).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Today quick-add", "issues": ["Deadline control bounding box is 46px tall vs 44px for list picker/submit (border adds 2px in web box-model). Visually aligned but not exactly equal; consider boxSizing: border-box or explicit height on inline input container to match exactly if pixel parity is required."]}
+    ],
+    "react_native_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: normalise inline datetime container height so all 3 quick-add controls are pixel-perfect 44px (currently 46 due to 1px border on inline web input container)."
+  ],
+  "critical_code_review_comments": [
+    "history.tsx: undo Pressable is nested inside a parent Pressable (row) — works because onPress uses e.stopPropagation, but on some RN platforms nested Pressables can still bubble; consider extracting into a separate touch surface if issues arise on native.",
+    "store.tsx toggleDone clears completedAt when un-completing (correct) — verified via undo flow.",
+    "DateTimeField inline web: absolute-positioned input with opacity 0 correctly overlays the label so taps open the native picker; testID -> data-testid mapping verified."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "seed_data_creation": "Created two tasks via UI ('TEST on-time task' with future-today deadline, 'TEST no-deadline task' without deadline); on-time task later removed via history-undo. Remaining TEST_ data persists in localStorage.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Public URL: EXPO_PUBLIC_BACKEND_URL from /app/frontend/.env. Local storage is source of truth; use Settings > Reset data or clear localStorage to reset between runs. To create an on-time completion via web quick-add, dispatch input+change events on data-testid='quick-add-datetime' with a datetime-local value set for later today, then submit. History empty state expects storage cleared."
+}

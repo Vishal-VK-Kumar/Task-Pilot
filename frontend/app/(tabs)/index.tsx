@@ -141,14 +141,24 @@ export default function TodayScreen() {
               <Text style={styles.demoTag} testID="demo-mode-indicator">SAMPLE DATA — Demo Mode</Text>
             ) : null}
           </View>
-          <Pressable
-            testID="open-settings-btn"
-            onPress={openSettings}
-            hitSlop={12}
-            style={({ pressed }) => [styles.headerIconBtn, pressed && { opacity: 0.5 }]}
-          >
-            <Feather name="settings" size={22} color={colors.onSurface} />
-          </Pressable>
+          <View style={styles.headerActions}>
+            <Pressable
+              testID="open-history-btn"
+              onPress={() => router.push('/history')}
+              hitSlop={12}
+              style={({ pressed }) => [styles.headerIconBtn, pressed && { opacity: 0.5 }]}
+            >
+              <Feather name="check-circle" size={22} color={colors.onSurface} />
+            </Pressable>
+            <Pressable
+              testID="open-settings-btn"
+              onPress={openSettings}
+              hitSlop={12}
+              style={({ pressed }) => [styles.headerIconBtn, pressed && { opacity: 0.5 }]}
+            >
+              <Feather name="settings" size={22} color={colors.onSurface} />
+            </Pressable>
+          </View>
         </View>
 
         {/* Notification permission banner */}
@@ -179,15 +189,14 @@ export default function TodayScreen() {
             onSubmitEditing={handleQuickAdd}
           />
           <View style={styles.quickRow}>
-            <View style={{ flex: 1 }}>
-              <DateTimeField
-                testID="quick-add-datetime"
-                label="Deadline"
-                emptyText="No deadline"
-                value={quickDate}
-                onChange={setQuickDate}
-              />
-            </View>
+            <DateTimeField
+              testID="quick-add-datetime"
+              inline
+              label="Deadline"
+              emptyText="No deadline"
+              value={quickDate}
+              onChange={setQuickDate}
+            />
             <Pressable
               testID="quick-add-list-picker"
               onPress={() => setShowListPicker((v) => !v)}
@@ -297,6 +306,7 @@ const styles = StyleSheet.create({
     color: colors.warning,
   },
   headerIconBtn: { padding: spacing.xs },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   banner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -326,22 +336,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: Platform.OS === 'ios' ? 12 : 8,
   },
-  quickRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' },
+  quickRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   listBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    height: 44,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: spacing.md,
-    paddingVertical: 10,
     borderRadius: radius.md,
   },
   listDot: { width: 8, height: 8, borderRadius: 4 },
   listBtnText: { fontSize: font.base, color: colors.onSurface },
   submitBtn: {
     backgroundColor: colors.brandPrimary,
-    padding: 10,
+    width: 44,
+    height: 44,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',

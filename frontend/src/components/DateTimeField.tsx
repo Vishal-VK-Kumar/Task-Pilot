@@ -14,6 +14,7 @@ type Props = {
   testID?: string;
   allowClear?: boolean;
   emptyText?: string;
+  inline?: boolean;
 };
 
 function toLocalInputValue(d: Date): string {
@@ -21,7 +22,7 @@ function toLocalInputValue(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function DateTimeField({ value, onChange, label, testID, allowClear = true, emptyText = 'None' }: Props) {
+export function DateTimeField({ value, onChange, label, testID, allowClear = true, emptyText = 'None', inline = false }: Props) {
   const [showDate, setShowDate] = React.useState(false);
   const [showTime, setShowTime] = React.useState(false);
   const [tempDate, setTempDate] = React.useState<Date | null>(value);
@@ -31,6 +32,105 @@ export function DateTimeField({ value, onChange, label, testID, allowClear = tru
   }, [value]);
 
   const display = value ? formatDisplay(value) : emptyText;
+  const inlineText = label ? `${label}: ${display}` : display;
+
+  const openPickers = () => {
+    const base = value ?? new Date();
+    setTempDate(base);
+    setShowDate(true);
+  };
+
+  const nativePickers = (
+    <>
+      {showDate ? (
+        <DateTimePicker
+          value={tempDate ?? new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'inline' : 'default'}
+          onChange={(_e, d) => {
+            setShowDate(false);
+            if (!d) return;
+            setTempDate(d);
+            setShowTime(true);
+          }}
+        />
+      ) : null}
+      {showTime ? (
+        <DateTimePicker
+          value={tempDate ?? new Date()}
+          mode="time"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(_e, d) => {
+            setShowTime(false);
+            if (!d) return;
+            const base = tempDate ?? new Date();
+            const combined = new Date(
+              base.getFullYear(),
+              base.getMonth(),
+              base.getDate(),
+              d.getHours(),
+              d.getMinutes(),
+              0,
+              0
+            );
+            onChange(combined);
+          }}
+        />
+      ) : null}
+    </>
+  );
+
+  // ---- Inline single-line control (used in the quick-add row) ----
+  if (inline) {
+    if (Platform.OS === 'web') {
+      return (
+        <View style={styles.inlineBtn}>
+          <Text
+            style={[styles.inlineText, !value && styles.pickerBtnPlaceholder]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {inlineText}
+          </Text>
+          {/* @ts-ignore transparent native input captures taps and opens picker */}
+          <input
+            data-testid={testID}
+            type="datetime-local"
+            value={value ? toLocalInputValue(value) : ''}
+            onChange={(e: any) => {
+              const v = e.target.value;
+              if (!v) return onChange(null);
+              const d = new Date(v);
+              onChange(isNaN(d.getTime()) ? null : d);
+            }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              opacity: 0,
+              cursor: 'pointer',
+            }}
+          />
+        </View>
+      );
+    }
+    return (
+      <>
+        <Pressable testID={testID} onPress={openPickers} style={styles.inlineBtn}>
+          <Text
+            style={[styles.inlineText, !value && styles.pickerBtnPlaceholder]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {inlineText}
+          </Text>
+        </Pressable>
+        {nativePickers}
+      </>
+    );
+  }
 
   if (Platform.OS === 'web') {
     return (
@@ -154,4 +254,17 @@ const styles = StyleSheet.create({
   pickerBtnPlaceholder: { color: colors.onSurfaceTertiary },
   clearBtn: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm + 2 },
   clearText: { fontSize: font.base, color: colors.info },
+  inlineBtn: {
+    flex: 1,
+    height: 44,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.surface,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  inlineText: { fontSize: font.base, color: colors.onSurface },
 });

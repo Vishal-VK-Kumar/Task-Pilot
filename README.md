@@ -15,6 +15,12 @@ live in, on the theory that a small tool I use beats a large one I abandon.
 
 ## What shipped
 
+| Today | Job board |
+|---|---|
+| <img src="docs/screenshots/today.jpeg" width="280"> | <img src="docs/screenshots/job-board.jpeg" width="280"> |
+
+Screenshots are in demo mode, which is why they are labelled sample data.
+
 | | |
 |---|---|
 | Task fields | title, deadline, one reminder, done, list, notes |

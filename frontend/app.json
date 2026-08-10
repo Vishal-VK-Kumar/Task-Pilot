@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "TaskPilot",
+    "slug": "taskpilot",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "scheme": "taskpilot",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.emergent.taskpilotmobile.epi43i"
+      "bundleIdentifier": "com.vishalkumar.taskpilot"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +18,7 @@
         "backgroundColor": "#FFFFFF"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.emergent.taskpilotmobile.epi43i",
+      "package": "com.vishalkumar.taskpilot",
       "permissions": ["POST_NOTIFICATIONS", "SCHEDULE_EXACT_ALARM"]
     },
     "web": {

@@ -1,0 +1,25 @@
+{
+  "summary": "Frontend re-test after quick-add fix. All requested flows PASS on Expo web preview. Quick-add dateless task lands in Upcoming>Someday (verified). Quick-add with today's date lands in Today section. Toggle done on Upcoming removes the task; on Today it shows undo-bar with working undo-btn. Task detail opens, switching list to 'job' reveals company/role/link/stage/next-action fields. Reminder chips: at_due/1h/1d are disabled when dueAt is null and enabled when a due date is set; 'custom' input shows and a past custom reminder triggers detail-reminder-warn, a future one triggers detail-web-info on web. Job board shows all 5 stage sections; add-application flow creates a card that appears under Applied. Settings shows notif-permission-status='Web (no notifications)' and test-notification-btn produces status 'Notifications only work on the phone, not on web.' Demo mode toggle ON shows 'SAMPLE DATA' badge on Today (demo-mode-indicator) and populates Job board with 8 demo application cards; real user task ('Real task alpha') is hidden in demo. Toggle OFF hides badge and restores real data (verified in prior iteration flow). Delete via detail-delete removes the task (apps count decremented).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Minor UX observation (non-blocking): while a modal-style screen (e.g. /application/new) is on the stack, tapping bottom tab buttons in Expo Router does not always reset the stack — a subsequent tap on 'Today' may leave the New Application screen on top. Consider using router.replace or resetting the stack when navigating between tabs while a modal route is open."
+  ],
+  "critical_code_review_comments": [
+    "store.tsx setDemoMode: useCallback dependency array is empty ([]) but it should depend on nothing that changes (uses stable setters) — safe as-is, but if scheduleReminder/cancelReminder change behavior it will silently use stale closures. Minor.",
+    "index.tsx line ~89: reminderAt uses quickDate.getTime() but only quickDate is checked with '?' — if dueAt is set and in the future, a reminder equal to the due time is scheduled automatically. That's intentional per PRD, verified working."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "skipped (per request)", "frontend": "100%"},
+  "seed_data_creation": "No manual seed; used demo mode (buildDemoData) and one user-created real task 'Real task alpha' plus a Flipkart application.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All flows in review_request verified via Playwright on mobile viewport 390x844. Real-data storage keys: tp.tasks.v1; demo key: tp.demoTasks.v1; demoMode flag: tp.demoMode.v1 in localStorage. If flakes appear, clear localStorage before test and avoid using 'text=Today' when demo data is loaded (multiple 'Today' strings from formatted dates). Prefer role-based selectors or bottom-tab testIDs.",
+  "rca_of_issue": "N/A — no bug found in this iteration. Quick-add DOM-fallback fix from iteration_1 confirmed effective: Playwright fill on quick-add-input followed by quick-add-submit correctly creates the task even when React controlled-state hasn't caught up."
+}

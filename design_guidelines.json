@@ -1,0 +1,155 @@
+{
+  "app_name": "TaskPilot",
+  "personality": "1 iOS-Native Clean (Adapted: Strictly Minimal, Light Mode Only, System Fonts)",
+  "personality_one_liner": "A purely functional, ultra-clean task list relying entirely on typography and generous whitespace, with zero decorative elements.",
+  "color": {
+    "surface": "#FFFFFF",
+    "onSurface": "#1C1C1E",
+    "surfaceSecondary": "#F2F2F7",
+    "onSurfaceSecondary": "#6E6E73",
+    "surfaceTertiary": "#E5E5EA",
+    "onSurfaceTertiary": "#8E8E93",
+    "surfaceInverse": "#1C1C1E",
+    "onSurfaceInverse": "#FFFFFF",
+    "brand": "#1C1C1E",
+    "brandPrimary": "#1C1C1E",
+    "onBrandPrimary": "#FFFFFF",
+    "brandSecondary": "#F2F2F7",
+    "onBrandSecondary": "#1C1C1E",
+    "brandTertiary": "#E5E5EA",
+    "onBrandTertiary": "#1C1C1E",
+    "success": "#34C759",
+    "onSuccess": "#FFFFFF",
+    "warning": "#FF9500",
+    "onWarning": "#FFFFFF",
+    "error": "#FF3B30",
+    "onError": "#FFFFFF",
+    "info": "#007AFF",
+    "onInfo": "#FFFFFF",
+    "border": "#E5E5EA",
+    "borderStrong": "#C7C7CC",
+    "divider": "#E5E5EA",
+    "jobAccent": "#007AFF",
+    "studiesAccent": "#AF52DE",
+    "personalAccent": "#FF9500",
+    "overdueAccent": "#FF3B30"
+  },
+  "typography": {
+    "displayFontFamily": "System",
+    "textFontFamily": "System",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Generous spacing is the primary layout tool. Rely on whitespace over borders. Never cramp elements.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": "0",
+  "navigation": "bottom_tabs",
+  "icon_set": "Feather",
+  "glassmorphism": {
+    "enabled": "false",
+    "do's": [],
+    "dont's": [
+      "No blur or glass anywhere. Keep backgrounds solid to honor the strict minimal anti-decorative brief."
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "solid surface",
+      "android": "solid surface",
+      "low_end_android_fallback": "solid surface"
+    },
+    "image": "expo-image",
+    "blur": "none",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Today",
+      "purpose": "Primary view showing tasks due today and overdue tasks.",
+      "states": {
+        "loading": "Centered basic ActivityIndicator.",
+        "empty": "Calm, plain text centered: 'Nothing due today.' No illustrations, no celebration, no extra flair.",
+        "error": "Basic text error message with 'Retry' plain text button."
+      },
+      "layout": "Sticky quick-add bar fixed at the top (input, time picker icon, list selector icon) set against a solid surface background. Below it: ScrollView. Section 1: 'Overdue' title in overdueAccent (red), listing overdue tasks (newest first). Section 2: 'Today' title (default text color), listing tasks ordered by time. Rows have a tappable circle on the left, title, and a tiny list-accent indicator (e.g., small colored dot or left-border edge) to denote Job/Studies/Personal."
+    },
+    {
+      "name": "Upcoming",
+      "purpose": "View future tasks grouped by day.",
+      "states": {
+        "loading": "Centered basic ActivityIndicator.",
+        "empty": "Plain text: 'No upcoming tasks.'",
+        "error": "Basic text error message with 'Retry' plain text button."
+      },
+      "layout": "Vertical SectionList. Headers are the Date (e.g. 'Tomorrow', 'Oct 12'). At the very bottom, a 'Someday' section for tasks without due dates. Generous vertical spacing between sections."
+    },
+    {
+      "name": "Task Detail",
+      "purpose": "Full-screen edit form for a single task.",
+      "states": {
+        "loading": "Centered basic ActivityIndicator.",
+        "empty": "N/A - Contextual data screen",
+        "error": "Basic text error message."
+      },
+      "layout": "Pushed to stack, not a tab. Clean vertical form. Large Title input. Due Date/Time picker row. Reminder picker row (None, At time, 1h before, 1d before, Custom). List selector. Notes multiline input. If List == Job, conditionally render Job-specific fields (Company, Role, Link, Stage, Next Action). Delete and Mark Done actions at the bottom."
+    },
+    {
+      "name": "Job Board",
+      "purpose": "High-level view of job applications grouped by stage.",
+      "states": {
+        "loading": "Centered basic ActivityIndicator.",
+        "empty": "Plain text: 'No active job applications.'",
+        "error": "Basic text error message."
+      },
+      "layout": "Vertical ScrollView with Stage headers (To apply, Applied, Interviewing, Offer, Rejected). Under each header, cards displaying Company, Role, and Next Action date. Tap link icon to open browser. Fixed 'Add Application' text button at the bottom."
+    },
+    {
+      "name": "Settings",
+      "purpose": "Simple app controls and developer toggles.",
+      "states": {
+        "loading": "Centered basic ActivityIndicator.",
+        "empty": "N/A",
+        "error": "N/A"
+      },
+      "layout": "Accessed via header icon. Clean list of rows: 'Demo Mode' toggle, 'Test Notification' button, 'Notification Permission Status' text."
+    }
+  ],
+  "images": {},
+  "haptics": {
+    "task_done": "impactMedium",
+    "tab_press": "selection",
+    "quick_add_submit": "impactLight",
+    "toggle_demo": "impactLight"
+  },
+  "instructions_to_main_agent": [
+    "CRITICAL: User requested EXACTLY the following constraints: LIGHT MODE ONLY. System fonts only. No gradients. No illustrations. No confetti. No motivational copy. Strictly minimal.",
+    "Use solid #FFFFFF and #F2F2F7 for backgrounds. Disable all glassmorphism entirely.",
+    "Apply list-specific colors ONLY as small accents (e.g., a tiny dot, thin left-border strip on a row, or tinted tag), never full bleed. Job = #007AFF, Studies = #AF52DE, Personal = #FF9500, Overdue = #FF3B30.",
+    "Task Detail must NOT be a bottom tab. Even though the prompt stated 'first four', a detail screen inside a tab bar is an anti-pattern. Place Today, Upcoming, and Job Board in the bottom tabs. Task Detail should be pushed to the Stack. Settings should be opened via a header icon.",
+    "Notification Constraints: Implement local time-based reminders via expo-notifications. Must schedule locally, store times in local device timezone, and NEVER schedule in the past.",
+    "When a task is marked done, deleted, or edited, update or cancel the notification schedule accordingly.",
+    "Empty states must be extremely plain: Just a simple gray text string like 'Nothing due today.' centered on the screen. Do not add celebratory emojis or icons.",
+    "Job Board stage grouping must strictly be: to apply, applied, interviewing, offer, rejected."
+  ]
+}

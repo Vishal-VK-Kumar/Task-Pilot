@@ -41,6 +41,3 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
-
-# npm lockfile (project uses yarn)
-package-lock.json

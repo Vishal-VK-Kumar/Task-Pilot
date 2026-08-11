@@ -4,7 +4,7 @@
 import { Task } from './types';
 
 const BASE = process.env.EXPO_PUBLIC_BACKEND_URL || '';
-const API_KEY = 'tp_local_dev_key_a91f7';
+const API_KEY = process.env.EXPO_PUBLIC_API_KEY || '';
 
 let deviceId = 'device-unknown';
 export function setDeviceId(id: string) {

@@ -34,6 +34,9 @@ yarn-error.*
 # local env files
 .env*.local
 
+# the example file is safe to commit (no real values)
+!.env.example
+
 # typescript
 *.tsbuildinfo
 

@@ -83,6 +83,9 @@ android-sdk/
 .env
 .env.*
 *.env
+# the example files are safe to commit (no real values)
+!.env.example
+!**/.env.example
 credentials.json
 *.key
 .credentials

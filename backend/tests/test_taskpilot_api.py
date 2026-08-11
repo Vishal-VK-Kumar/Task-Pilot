@@ -6,10 +6,18 @@ from datetime import datetime, timedelta
 import pytest
 import requests
 
-BASE_URL = "https://taskpilot-mobile.preview.emergentagent.com"
+BASE_URL = os.environ.get("TASKPILOT_TEST_BASE_URL", "http://localhost:8000")
+API_KEY = os.environ.get("TASKPILOT_TEST_API_KEY")
 API = f"{BASE_URL}/api"
-API_KEY = "tp_local_dev_key_a91f7"
 DEVICE_ID = "test-device"
+
+if not API_KEY:
+    pytest.skip(
+        "TASKPILOT_TEST_API_KEY is not set; skipping backend API tests. "
+        "Set TASKPILOT_TEST_BASE_URL and TASKPILOT_TEST_API_KEY to run "
+        "these against a deployed backend.",
+        allow_module_level=True,
+    )
 
 
 @pytest.fixture(scope="module")

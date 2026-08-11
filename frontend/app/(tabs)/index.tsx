@@ -188,11 +188,11 @@ export default function TodayScreen() {
             returnKeyType="done"
             onSubmitEditing={handleQuickAdd}
           />
+          <Text style={styles.quickRowLabel}>Deadline</Text>
           <View style={styles.quickRow}>
             <DateTimeField
               testID="quick-add-datetime"
               inline
-              label="Deadline"
               emptyText="No deadline"
               value={quickDate}
               onChange={setQuickDate}
@@ -374,5 +374,6 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.divider,
   },
   listMenuText: { fontSize: font.base, color: colors.onSurface },
+  quickRowLabel: { fontSize: font.sm, color: colors.onSurfaceSecondary, fontWeight: '600' },
   warn: { fontSize: font.sm, color: colors.warning },
 });

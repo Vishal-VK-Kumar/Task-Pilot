@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "TaskPilot",
-    "slug": "taskpilot",
+    "slug": "vishal-kumar",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -19,7 +19,10 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.vishalkumar.taskpilot",
-      "permissions": ["POST_NOTIFICATIONS", "SCHEDULE_EXACT_ALARM"]
+      "permissions": [
+        "POST_NOTIFICATIONS",
+        "SCHEDULE_EXACT_ALARM"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -47,6 +50,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "585d4449-7eb6-4965-83c9-a5da9423d1ef"
+      }
+    },
+    "owner": "vishal252s-team"
   }
 }

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "TaskPilot",
-    "slug": "vishal-kumar",
+    "slug": "taskpilot",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -54,7 +54,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "585d4449-7eb6-4965-83c9-a5da9423d1ef"
+        "projectId": "5787093e-b0f1-4b43-8fee-bc05a436f823"
       }
     },
     "owner": "vishal252s-team"
